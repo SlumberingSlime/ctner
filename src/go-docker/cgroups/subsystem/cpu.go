@@ -24,6 +24,7 @@ func (c *CpuSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 		return err
 	}
 	if res.CpuShare != "" {
+		c.apply = true
 		err = ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpu.shares"), []byte(res.CpuShare), 0644)
 		if err != nil {
 			logrus.Errorf("failed to write file cpu.shares, err: %+v", err)

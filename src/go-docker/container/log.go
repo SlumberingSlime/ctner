@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// 查看容器内日志信息
 func LookContainerLog(containerName string) {
 	logFileName := path.Join(common.DefaultContainerInfoPath, containerName, common.ContainerLogFileName)
 	file, err := os.Open(logFileName)

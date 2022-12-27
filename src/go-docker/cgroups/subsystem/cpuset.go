@@ -17,13 +17,14 @@ func (*CpuSetSubSystem) Name() string {
 	return "cpuset"
 }
 
-func (m *CpuSetSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
-	subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, true)
+func (c *CpuSetSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
+	subsystemCgroupPath, err := GetCgroupPath(c.Name(), cgroupPath, true)
 	if err != nil {
 		logrus.Errorf("get %s path, err: %v", cgroupPath, err)
 		return err
 	}
 	if res.CpuSet != "" {
+		c.apply = true
 		err = ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpuset.cpus"), []byte(res.CpuSet), 0644)
 		if err != nil {
 			logrus.Errorf("failed to write file cpuset.cpus, err: %+v", err)
