@@ -36,19 +36,18 @@ func (m *MemorySubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 }
 
 func (m *MemorySubSystem) Apply(cgroupPath string, pid int) error {
-	subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, true)
-	if err != nil {
-		logrus.Errorf("get %s path, err: %v", cgroupPath, err)
-		return err
+	if m.apply {
+		subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, false)
+		if err != nil {
+			return err
+		}
+		tasksPath := path.Join(subsystemCgroupPath, "tasks")
+		err = ioutil.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), os.ModePerm)
+		if err != nil {
+			logrus.Errorf("write pid to tasks, path: %s, pid: %d, err: %v", tasksPath, pid, err)
+			return err
+		}
 	}
-
-	tasksPath := path.Join(subsystemCgroupPath, "tasks")
-	err = ioutil.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), os.ModePerm) //Itoa:int转为string
-	if err != nil {
-		logrus.Errorf("write pid to tasks, path: %s, pid:%d, err: %v", tasksPath, pid, err)
-		return err
-	}
-
 	return nil
 }
 

@@ -33,19 +33,19 @@ func (m *CpuSetSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	return nil
 }
 
-func (m *CpuSetSubSystem) Apply(cgroupPath string, pid int) error {
-	subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, true)
-	if err != nil {
-		logrus.Errorf("get %s path, err: %v", cgroupPath, err)
-		return err
+func (c *CpuSetSubSystem) Apply(cgroupPath string, pid int) error {
+	if c.apply {
+		subsystemCgroupPath, err := GetCgroupPath(c.Name(), cgroupPath, false)
+		if err != nil {
+			return err
+		}
+		tasksPath := path.Join(subsystemCgroupPath, "tasks")
+		err = ioutil.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), os.ModePerm)
+		if err != nil {
+			logrus.Errorf("write pid to tasks, path: %s, pid: %d, err: %v", tasksPath, pid, err)
+			return err
+		}
 	}
-	tasksPath := path.Join(subsystemCgroupPath, "tasks")
-	err = ioutil.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), os.ModePerm)
-	if err != nil {
-		logrus.Errorf("write pid to tasks, path: %s, pid:%d, err: %v", tasksPath, pid, err)
-		return err
-	}
-
 	return nil
 }
 
