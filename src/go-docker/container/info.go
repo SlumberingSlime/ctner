@@ -3,6 +3,7 @@ package container
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"go-docker/common"
 	"io/ioutil"
 	"math/rand"
@@ -12,19 +13,17 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 type ContainerInfo struct {
-	Pid         string   `json:"pid"`     //容器的init进程在宿主机上的PID
-	Id          string   `json:"id"`      //容器的id
-	Command     string   `json:"command"` //容器内init进程的运行命令
+	Pid         string   `json:"pid"`     // 容器的init进程再宿主机上的PID
+	Id          string   `json:"id"`      // 容器ID
+	Command     string   `json:"command"` // 容器内init进程的运行命令
 	Name        string   `json:"name"`
-	CreateTime  string   `json:"createtime"`
+	CreateTime  string   `json:"createTime"`
 	Status      string   `json:"status"`
 	Volume      string   `json:"volume"`      //容器的数据卷
-	PortMapping []string `json:"portMapping"` //端口映射
+	PortMapping []string `json:"portmapping"` //端口映射
 }
 
 // 记录容器信息
@@ -48,17 +47,17 @@ func RecordContainerInfo(containerPID int, cmdArray []string, containerName, con
 		}
 	}
 
-	fileName := fmt.Sprintf("%s/%s", dir, common.ContainerLogFileName)
+	fileName := fmt.Sprintf("%s/%s", dir, common.ContainerInfoFileName)
 	file, err := os.Create(fileName)
 	if err != nil {
-		logrus.Errorf("create config.json, filename: %s, err: %v", fileName, err)
+		logrus.Errorf("create config.json, fileName: %s, err: %v", fileName, err)
 		return err
 	}
 
 	bs, _ := json.Marshal(info)
 	_, err = file.WriteString(string(bs))
 	if err != nil {
-		logrus.Errorf("write config.json, filename: %s, err: %v", fileName, err)
+		logrus.Errorf("write config.json, fileName: %s, err: %v", fileName, err)
 		return err
 	}
 

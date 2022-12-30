@@ -1,67 +1,67 @@
 package main
 
 import (
+	"fmt" //实现了类似C语言printf和scanf的格式化I/O
+	"go-docker/common"
+	"go-docker/network"
 	"os"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 
-	"fmt" //这个package实现了类似C语言printf和scanf的格式化I/O
-
 	"go-docker/cgroups/subsystem"
-	"go-docker/common"
 	"go-docker/container"
-	"go-docker/network"
 )
 
+// 创建namespace隔离的容器进程
+// 启动容器
 var runCommand = cli.Command{
 	Name:  "run",
 	Usage: "Create a container with namespace and cgroups limit",
 	Flags: []cli.Flag{
-		&cli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "ti",
 			Usage: "enable tty",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "m",
 			Usage: "memory limit",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "cpushare",
 			Usage: "cpushare limit",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "cpuset",
 			Usage: "cpuset limit",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "v",
 			Usage: "docker volume",
 		},
-		&cli.BoolFlag{
+		cli.BoolFlag{
 			Name:  "d",
 			Usage: "detach container",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "name",
 			Usage: "container name",
 		},
-		&cli.StringSliceFlag{
+		cli.StringSliceFlag{
 			Name:  "e",
 			Usage: "docker env",
 		},
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "net",
 			Usage: "container network",
 		},
-		&cli.StringSliceFlag{
+		cli.StringSliceFlag{
 			Name:  "p",
 			Usage: "port mapping",
 		},
 	},
-
 	Action: func(ctx *cli.Context) error {
-		if ctx.Args().Len() < 1 {
+		if len(ctx.Args()) < 1 {
 			return fmt.Errorf("missing container args")
 			//fmt.Errorf(): 根据括号里面的参数生成格式化字符串，并返回一个包含该字符串的错误
 		}
@@ -93,8 +93,6 @@ var runCommand = cli.Command{
 		envs := ctx.StringSlice("e")
 		ports := ctx.StringSlice("p")
 
-		//接受前台传递的参数，tty表示是否前台运行，对应docker的-ti
-		//run函数写在run.go中
 		Run(cmdArray, tty, res, containerName, imageName, volume, net, envs, ports)
 		return nil
 	},
@@ -104,7 +102,7 @@ var runCommand = cli.Command{
 var initCommand = cli.Command{
 	Name:  "init",
 	Usage: "Init container process run user's process in container. Do not call it outside",
-	Action: func(context *cli.Context) error {
+	Action: func(ctx *cli.Context) error {
 		logrus.Infof("init come on")
 		return container.RunContainerInitProcess()
 	},
@@ -115,13 +113,13 @@ var commitCommand = cli.Command{
 	Name:  "commit",
 	Usage: "docker commit a container into image",
 	Flags: []cli.Flag{
-		&cli.StringFlag{
+		cli.StringFlag{
 			Name:  "c",
 			Usage: "export image path",
 		},
 	},
 	Action: func(ctx *cli.Context) error {
-		if ctx.Args().Len() < 1 {
+		if len(ctx.Args()) < 1 {
 			return fmt.Errorf("missing container name")
 		}
 		imageName := ctx.Args().Get(0)
@@ -142,11 +140,11 @@ var listCommand = cli.Command{
 var logCommand = cli.Command{
 	Name:  "logs",
 	Usage: "look container log",
-	Action: func(context *cli.Context) error {
-		if context.Args().Len() < 1 {
+	Action: func(ctx *cli.Context) error {
+		if len(ctx.Args()) < 1 {
 			return fmt.Errorf("missing container name")
 		}
-		containerName := context.Args().Get(0)
+		containerName := ctx.Args().Get(0)
 		container.LookContainerLog(containerName)
 		return nil
 	},
@@ -162,7 +160,7 @@ var execCommand = cli.Command{
 			logrus.Infof("pid callback pid %s, gid: %d", pid, os.Getgid())
 			return nil
 		}
-		if ctx.Args().Len() < 2 {
+		if len(ctx.Args()) < 2 {
 			return fmt.Errorf("missing container name or command")
 		}
 
@@ -181,7 +179,7 @@ var stopCommand = cli.Command{
 	Name:  "stop",
 	Usage: "stop a container",
 	Action: func(ctx *cli.Context) error {
-		if ctx.Args().Len() < 1 {
+		if len(ctx.Args()) < 1 {
 			return fmt.Errorf("missing stop container name")
 		}
 		containerName := ctx.Args().Get(0)
@@ -194,7 +192,7 @@ var removeCommand = cli.Command{
 	Name:  "rm",
 	Usage: "rm a container",
 	Action: func(ctx *cli.Context) error {
-		if ctx.Args().Len() < 1 {
+		if len(ctx.Args()) < 1 {
 			return fmt.Errorf("missing remove container name")
 		}
 		containerName := ctx.Args().Get(0)
@@ -206,22 +204,22 @@ var removeCommand = cli.Command{
 var networkCommand = cli.Command{
 	Name:  "network",
 	Usage: "container network commands",
-	Subcommands: []*cli.Command{
+	Subcommands: []cli.Command{
 		{
 			Name:  "create",
 			Usage: "create a container network",
 			Flags: []cli.Flag{
-				&cli.StringFlag{
+				cli.StringFlag{
 					Name:  "driver",
 					Usage: "network driver",
 				},
-				&cli.StringFlag{
+				cli.StringFlag{
 					Name:  "subnet",
 					Usage: "subnet cidr",
 				},
 			},
 			Action: func(context *cli.Context) error {
-				if context.Args().Len() < 1 {
+				if len(context.Args()) < 1 {
 					return fmt.Errorf("Missing network name")
 				}
 				err := network.Init()
@@ -230,7 +228,7 @@ var networkCommand = cli.Command{
 					return err
 				}
 				// 创建网络
-				err = network.CreateNetwork(context.String("driver"), context.String("subnet"), context.Args().Slice()[0])
+				err = network.CreateNetwork(context.String("driver"), context.String("subnet"), context.Args()[0])
 				if err != nil {
 					return fmt.Errorf("create network error: %+v", err)
 				}
@@ -254,8 +252,8 @@ var networkCommand = cli.Command{
 		{
 			Name:  "remove",
 			Usage: "remove container network",
-			Action: func(ctx *cli.Context) error {
-				if ctx.Args().Len() < 1 {
+			Action: func(context *cli.Context) error {
+				if len(context.Args()) < 1 {
 					return fmt.Errorf("Missing network name")
 				}
 
@@ -264,7 +262,7 @@ var networkCommand = cli.Command{
 					logrus.Errorf("network init failed, err: %v", err)
 					return err
 				}
-				err = network.DeleteNetwork(ctx.Args().Slice()[0])
+				err = network.DeleteNetwork(context.Args()[0])
 				if err != nil {
 					return fmt.Errorf("remove network error: %+v", err)
 				}

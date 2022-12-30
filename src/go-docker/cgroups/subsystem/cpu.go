@@ -1,12 +1,11 @@
 package subsystem
 
 import (
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
-
-	"github.com/sirupsen/logrus"
 )
 
 type CpuSubSystem struct {
@@ -34,6 +33,14 @@ func (c *CpuSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	return nil
 }
 
+func (c *CpuSubSystem) Remove(cgroupPath string) error {
+	subsystemCgroupPath, err := GetCgroupPath(c.Name(), cgroupPath, false)
+	if err != nil {
+		return err
+	}
+	return os.RemoveAll(subsystemCgroupPath)
+}
+
 func (c *CpuSubSystem) Apply(cgroupPath string, pid int) error {
 	if c.apply {
 		subsystemCgroupPath, err := GetCgroupPath(c.Name(), cgroupPath, false)
@@ -49,12 +56,4 @@ func (c *CpuSubSystem) Apply(cgroupPath string, pid int) error {
 		}
 	}
 	return nil
-}
-
-func (m *CpuSubSystem) Remove(cgroupPath string) error {
-	subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, true)
-	if err != nil {
-		return err
-	}
-	return os.RemoveAll(subsystemCgroupPath)
 }

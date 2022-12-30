@@ -1,9 +1,8 @@
 package subsystem
 
 import (
-	"testing"
-
 	"github.com/sirupsen/logrus"
+	"testing"
 )
 
 func TestGetCgroupPath(t *testing.T) {

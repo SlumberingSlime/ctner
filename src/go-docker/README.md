@@ -1,49 +1,18 @@
 # go-docker
 > 用go写一个docker
 
-## 环境配置
-- 开发环境： windows
-- 运行环境： CentOS
-
-### windows中goland配置
-> windows下要修改goland的OS环境为 linux,不然只会引用`exec_windows.go`而不会引用`exec_linxu_go`
-> 在Setting->Go->Build Tags & Vendoring -> OS=linux
-
-### 设置CentOS支持aufs
-查看是否支持
+### 配置centos镜像, 通过root用户的权限
 ```bash
-cat /proc/filesystems
-```
-安装aufs
-```bash
-cd /etc/yum.repo.d
-# 下载文件
-wget https://yum.spaceduck.org/kernel-ml-aufs/kernel-ml-aufs.repo
-# 安装
-yum install kernel-ml-aufs
-# 修改内核启动
-vim /etc/default/grub
-## 修改参数
-GRUB_DEFAULT=0
-
-# 重新生成grub.cfg
-grub2-mkconfig -o /boot/grub2/grub.cfg
-
-# 重启计算机
-reboot
-```
-### 配置busybox
-```bash
-# 下载 busybox
-docker pull busybox
+# 下载 centos
+docker pull centos
 # 运行
-docker run -d busybox top -b
+docker run -d centos top -b
 # 导出
-docker export -o busybox.tar (容器ID)
+docker export -o centos.tar (容器ID)
 # 解压到 /root文件夹下
 cd /root
-mkdir busybox
-tar -xvf busybox.tar -C busybox/
+mkdir centos
+tar -xvf centos.tar -C centos/
 ```
 
 ## 使用指南
@@ -51,14 +20,14 @@ tar -xvf busybox.tar -C busybox/
 # 编译
 go build .
 
-# 启动一个容器, busybox为镜像名，存放在 /root/busybox.tar
-./go-docker run -ti --name test busybox sh
+# 启动一个容器, centos为镜像名，存放在 /root/centos.tar
+./go-docker run -ti --name test centos sh
 
 # 后台启动
-./go-docker run -d --name test busybox sh
+./go-docker run -d --name test centos sh
 
 # 挂载文件
-./go-docker run -d -v /root/test:/test --name test busybox sh
+./go-docker run -d -v /root/test:/test --name test centos sh
 
 # 进入容器
 ./go-docker exec test sh
@@ -133,7 +102,7 @@ echo "进程ID" >> cgroup/tasks
 
 - 导出容器
 ```bash
-docker export -o busybox.tar 45c98e055883(容器ID)
+docker export -o centos.tar (容器ID)
 ```
 - 移除mount
 ```bash

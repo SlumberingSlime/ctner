@@ -28,6 +28,6 @@ func TestChangeRunDir(t *testing.T) {
 }
 
 func TestPathJoin(t *testing.T) {
-	newPath := path.Join("/root/", "centos.tar")
+	newPath := path.Join("/root/", "busybox.tar")
 	t.Log(newPath)
 }

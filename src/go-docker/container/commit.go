@@ -2,11 +2,10 @@ package container
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"go-docker/common"
 	"os/exec"
 	"path"
-
-	"github.com/sirupsen/logrus"
 )
 
 func CommitContainer(imageName, imagePath string) error {

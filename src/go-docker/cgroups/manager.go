@@ -1,9 +1,8 @@
 package cgroups
 
 import (
-	"go-docker/cgroups/subsystem"
-
 	"github.com/sirupsen/logrus"
+	"go-docker/cgroups/subsystem"
 )
 
 //资源限制管理器
@@ -29,7 +28,7 @@ func (c *CGroupManager) Apply(pid int) {
 	for _, subsystem := range subsystem.Subsystems {
 		err := subsystem.Apply(c.Path, pid)
 		if err != nil {
-			logrus.Errorf("apply task,  err: %v", err)
+			logrus.Errorf("apply task, err: %v", err)
 		}
 	}
 }
@@ -38,9 +37,7 @@ func (c *CGroupManager) Destroy() {
 	for _, subsystem := range subsystem.Subsystems {
 		err := subsystem.Remove(c.Path)
 		if err != nil {
-			logrus.Errorf("remove %s task,  err: %v", subsystem.Name(), err)
+			logrus.Errorf("remove %s err: %v", subsystem.Name(), err)
 		}
 	}
 }
-
-//案例：memory.go

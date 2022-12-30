@@ -30,12 +30,20 @@ func (m *MemorySubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 		m.apply = true
 		// 设置cgroup内存限制，
 		// 将这个限制写入到cgroup对应目录的 memory.limit_in_bytes文件中即可
-		err = ioutil.WriteFile(path.Join(subsystemCgroupPath, "memory.limit_in_bytes"), []byte(res.MemoryLimit), 0644)
+		err := ioutil.WriteFile(path.Join(subsystemCgroupPath, "memory.limit_in_bytes"), []byte(res.MemoryLimit), 0644)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (m *MemorySubSystem) Remove(cgroupPath string) error {
+	subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, false)
+	if err != nil {
+		return err
+	}
+	return os.RemoveAll(subsystemCgroupPath)
 }
 
 func (m *MemorySubSystem) Apply(cgroupPath string, pid int) error {
@@ -52,12 +60,4 @@ func (m *MemorySubSystem) Apply(cgroupPath string, pid int) error {
 		}
 	}
 	return nil
-}
-
-func (m *MemorySubSystem) Remove(cgroupPath string) error {
-	subsystemCgroupPath, err := GetCgroupPath(m.Name(), cgroupPath, true)
-	if err != nil {
-		return err
-	}
-	return os.RemoveAll(subsystemCgroupPath)
 }

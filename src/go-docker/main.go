@@ -5,6 +5,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+
+	_ "go-docker/nsenter"
 )
 
 const usage = `go-docker`
@@ -14,24 +16,23 @@ func main() {
 	app.Name = "go-docker"
 	app.Usage = usage
 
-	app.Commands = []*cli.Command{
-		&runCommand,
-		&initCommand,
-		&commitCommand,
-		&listCommand,
-		&logCommand,
-		&execCommand,
-		&stopCommand,
-		&removeCommand,
-		&networkCommand,
+	app.Commands = []cli.Command{
+		runCommand,
+		initCommand,
+		commitCommand,
+		listCommand,
+		logCommand,
+		execCommand,
+		stopCommand,
+		removeCommand,
+		networkCommand,
 	}
 	//Command数组定义了两个运行命令runCommand和InitCommand，在command.go里面
-	app.Before = func(contest *cli.Context) error {
+	app.Before = func(context *cli.Context) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{})
-		logrus.SetOutput(os.Stdout) //os.Stdout是指向标准输出的文件描述符
+		logrus.SetOutput(os.Stdout)
 		return nil
 	}
-
 	if err := app.Run(os.Args); err != nil {
 		//os.Args是保管命令行参数的切片（动态数组
 		logrus.Fatal(err)

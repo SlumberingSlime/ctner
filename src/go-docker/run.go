@@ -1,26 +1,23 @@
 package main
 
 import (
+	"go-docker/network"
 	"os"
 	"strconv"
-	"strings" //有数据结构用到string了，需要引入这个包
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
 	"go-docker/cgroups"
 	"go-docker/cgroups/subsystem"
 	"go-docker/container"
-	"go-docker/network"
 )
 
-// 首字母大写的函数/变量可以被其他package引用（公有），小写表示本包私有
-// 启动一个容器，然后进行相应的资源限制
-func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerName, imageName, volume, net string, envs, ports []string) { //这个函数没有返回值
+func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerName, imageName, volume, net string, envs, ports []string) {
 	containerID := container.GenContainerID(10)
 	if containerName == "" {
 		containerName = containerID
 	}
-
 	parent, writePipe := container.NewParentProcess(tty, volume, containerName, imageName, envs)
 	//返回一个被namespace隔离的进程，函数在文件process.go里面
 	if parent == nil {
@@ -31,19 +28,20 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerNa
 		logrus.Errorf("parent start failed, err: %v", err)
 		return
 	}
-
 	// 记录容器信息
 	err := container.RecordContainerInfo(parent.Process.Pid, cmdArray, containerName, containerID)
 	if err != nil {
 		logrus.Errorf("record container info, err: %v", err)
 	}
 
-	//添加资源限制
-	cgroupManager := cgroups.NewCGroupManager("go-docker")
-	defer cgroupManager.Destroy()
-	cgroupManager.Set(res) //设置资源限制
-	//容器进程加入到subsystem挂载对应的cgroup中
-	cgroupManager.Apply(parent.Process.Pid)
+	// 添加资源限制
+	cgroupMananger := cgroups.NewCGroupManager("go-docker")
+	// 删除资源限制
+	defer cgroupMananger.Destroy()
+	// 设置资源限制
+	cgroupMananger.Set(res)
+	// 将容器进程，加入到各个subsystem挂载对应的cgroup中
+	cgroupMananger.Apply(parent.Process.Pid)
 
 	// 设置网络
 	if net != "" {
@@ -67,6 +65,7 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerNa
 
 	// 设置初始化命令
 	sendInitCommand(cmdArray, writePipe)
+
 	if tty {
 		// 等待父进程结束
 		err := parent.Wait()
@@ -83,8 +82,8 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerNa
 	}
 }
 
-func sendInitCommand(cmdArray []string, writePipe *os.File) {
-	command := strings.Join(cmdArray, " ")
+func sendInitCommand(comArray []string, writePipe *os.File) {
+	command := strings.Join(comArray, " ")
 	logrus.Infof("command all is %s", command)
 	_, _ = writePipe.WriteString(command) //_表示忽略返回值
 	_ = writePipe.Close()
