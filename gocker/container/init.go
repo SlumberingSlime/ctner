@@ -15,7 +15,7 @@ import (
 // 本容器执行的第一个进程
 // 使用mount挂载proc文件系统
 // 以便后面通过`ps`等系统命令查看当前进程资源的情况
-func RunContainerInitProcess() error {
+func RunContainerInitProcess(hostname *string) error {
 	cmdArray := readUserCommand()
 	if cmdArray == nil || len(cmdArray) == 0 {
 		return fmt.Errorf("get user command in run container")
@@ -31,6 +31,14 @@ func RunContainerInitProcess() error {
 	path, err := exec.LookPath(cmdArray[0])
 	if err != nil {
 		path = cmdArray[0]
+	}
+
+	if hostname != nil {
+		// set hostname
+		err = syscall.Sethostname([]byte(*hostname))
+		if err != nil {
+			logrus.Errorf("unable to set hostname, err: %v", err)
+		}
 	}
 
 	err = syscall.Exec(path, cmdArray[0:], os.Environ())

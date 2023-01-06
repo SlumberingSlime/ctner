@@ -104,7 +104,15 @@ var initCommand = cli.Command{
 	Usage: "Init container process run user's process in container. Do not call it outside",
 	Action: func(ctx *cli.Context) error {
 		logrus.Infof("init come on")
-		return container.RunContainerInitProcess()
+		var containerName *string
+		if len(ctx.Args()) == 1 {
+			var tmpname = ctx.Args().First()
+			logrus.Infof("get hostname: %s", tmpname)
+			containerName = &tmpname
+		} else {
+			containerName = nil
+		}
+		return container.RunContainerInitProcess(containerName)
 	},
 }
 
