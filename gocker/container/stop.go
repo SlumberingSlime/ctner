@@ -2,7 +2,7 @@ package container
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path"
 	"strconv"
 	"syscall"
@@ -31,7 +31,7 @@ func StopContainer(containerName string) {
 		info.Pid = ""
 		bs, _ := json.Marshal(info)
 		fileName := path.Join(common.DefaultContainerInfoPath, containerName, common.ContainerInfoFileName)
-		err := ioutil.WriteFile(fileName, bs, 0622)
+		err := os.WriteFile(fileName, bs, 0622)
 		if err != nil {
 			logrus.Errorf("write container config.json, err: %v", err)
 		}

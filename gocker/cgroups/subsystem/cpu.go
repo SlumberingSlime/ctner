@@ -2,7 +2,6 @@ package subsystem
 
 import (
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
@@ -24,7 +23,7 @@ func (c *CpuSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	}
 	if res.CpuShare != "" {
 		c.apply = true
-		err = ioutil.WriteFile(path.Join(subsystemCgroupPath, "cpu.shares"), []byte(res.CpuShare), 0644)
+		err = os.WriteFile(path.Join(subsystemCgroupPath, "cpu.shares"), []byte(res.CpuShare), 0644)
 		if err != nil {
 			logrus.Errorf("failed to write file cpu.shares, err: %+v", err)
 			return err
@@ -49,7 +48,7 @@ func (c *CpuSubSystem) Apply(cgroupPath string, pid int) error {
 		}
 
 		tasksPath := path.Join(subsystemCgroupPath, "tasks")
-		err = ioutil.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), os.ModePerm)
+		err = os.WriteFile(tasksPath, []byte(strconv.Itoa(pid)), os.ModePerm)
 		if err != nil {
 			logrus.Errorf("write pid to tasks, path: %s, pid: %d, err: %v", tasksPath, pid, err)
 			return err
