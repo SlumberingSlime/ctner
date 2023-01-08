@@ -161,6 +161,10 @@ func CreateNetwork(driver, subnet, name string) error {
 	ipNet.IP = ip
 
 	// 创建网络
+	if driver == "" {
+		logrus.Infof("driver is empty, assume is bridge")
+		driver = "bridge" // TODO: test me
+	}
 	nw, err := drivers[driver].Create(ipNet.String(), name)
 	if err != nil {
 		return err
