@@ -1,10 +1,18 @@
 module gocker
 
-go 1.13
+go 1.19
 
 require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli v1.22.2
 	github.com/vishvananda/netlink v1.1.0
 	github.com/vishvananda/netns v0.0.0-20191106174202-0a2b9b5464df
+)
+
+require (
+	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
+	github.com/russross/blackfriday/v2 v2.0.1 // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	golang.org/x/sys v0.0.0-20190606203320-7fc4e5ec1444 // indirect
 )
