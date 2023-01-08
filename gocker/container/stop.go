@@ -22,7 +22,7 @@ func StopContainer(containerName string) {
 	if info.Pid != "" {
 		pid, _ := strconv.Atoi(info.Pid)
 		// 杀死进程
-		if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
+		if err := syscall.Kill(pid, syscall.SIGKILL); err != nil {
 			logrus.Errorf("stop container, pid: %d, err: %v", pid, err)
 			return
 		}
