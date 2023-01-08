@@ -2,7 +2,7 @@ package container
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -42,7 +42,7 @@ func getEnvsByPid(pid string) []string {
 		logrus.Errorf("open env file, path: %s, err: %v", envFilePath, err)
 		return nil
 	}
-	bs, err := ioutil.ReadAll(file)
+	bs, err := io.ReadAll(file)
 	if err != nil {
 		logrus.Errorf("read env file, err: %v", err)
 	}

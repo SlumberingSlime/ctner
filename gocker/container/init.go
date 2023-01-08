@@ -2,7 +2,7 @@ package container
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -53,7 +53,7 @@ func readUserCommand() []string {
 	// 也就是 cmd.ExtraFiles 中 我们传递过来的 readPipe
 	//详见process.go文件末尾
 	pipe := os.NewFile(uintptr(3), "pipe")
-	bs, err := ioutil.ReadAll(pipe)
+	bs, err := io.ReadAll(pipe)
 	if err != nil {
 		logrus.Errorf("read pipe, err: %v", err)
 		return nil

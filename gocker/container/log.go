@@ -2,7 +2,7 @@ package container
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 
@@ -18,7 +18,7 @@ func LookContainerLog(containerName string) {
 	if err != nil {
 		logrus.Errorf("open log file, path: %s, err: %v", logFileName, err)
 	}
-	bs, err := ioutil.ReadAll(file)
+	bs, err := io.ReadAll(file)
 	if err != nil {
 		logrus.Errorf("read log file, err: %v", err)
 	}
