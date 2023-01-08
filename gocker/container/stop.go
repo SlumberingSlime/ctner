@@ -2,7 +2,7 @@ package container
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path"
 	"strconv"
 	"syscall"
@@ -22,7 +22,7 @@ func StopContainer(containerName string) {
 	if info.Pid != "" {
 		pid, _ := strconv.Atoi(info.Pid)
 		// 杀死进程
-		if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
+		if err := syscall.Kill(pid, syscall.SIGKILL); err != nil {
 			logrus.Errorf("stop container, pid: %d, err: %v", pid, err)
 			return
 		}
@@ -31,7 +31,7 @@ func StopContainer(containerName string) {
 		info.Pid = ""
 		bs, _ := json.Marshal(info)
 		fileName := path.Join(common.DefaultContainerInfoPath, containerName, common.ContainerInfoFileName)
-		err := ioutil.WriteFile(fileName, bs, 0622)
+		err := os.WriteFile(fileName, bs, 0622)
 		if err != nil {
 			logrus.Errorf("write container config.json, err: %v", err)
 		}

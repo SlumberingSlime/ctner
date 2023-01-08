@@ -85,8 +85,19 @@ func CreateMountPoint(containerName, imageName string) error {
 	// 将宿主机上关于容器的读写层和只读层挂载到 /root/mnt/容器名 里
 	writeLayPath := path.Join(common.RootPath, common.WriteLayer, containerName)
 	imagePath := path.Join(common.RootPath, imageName)
+	/*  `aufs` is deprecated, use overlayfs instead.
+	*******
 	dirs := fmt.Sprintf("dirs=%s:%s", writeLayPath, imagePath)
 	cmd := exec.Command("mount", "-t", "aufs", "-o", dirs, "none", mntPath)
+	*/
+	// overlayfs
+	workdir, err := os.MkdirTemp("", "gocker_*_workdir")
+	if err != nil {
+		logrus.Errorf("mktemp failed: %s", err)
+		return err
+	}
+	dirs := fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", imagePath, writeLayPath, workdir)
+	cmd := exec.Command("mount", "-t", "overlay", "overlay", "-o", dirs, mntPath)
 	if err := cmd.Run(); err != nil {
 		logrus.Errorf("mnt cmd run, err: %v", err)
 		return err
@@ -117,7 +128,8 @@ func mountVolume(containerName, imageName, volume string) {
 
 			// 把宿主机文件目录挂载到容器挂载点中
 			dirs := fmt.Sprintf("dirs=%s", parentPath)
-			cmd := exec.Command("mount", "-t", "aufs", "-o", dirs, "none", containerVolumePath)
+			cmd := exec.Command("mount", "--bind", dirs, containerVolumePath)
+			//cmd := exec.Command("mount", "-t", "aufs", "-o", dirs, "none", containerVolumePath)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {

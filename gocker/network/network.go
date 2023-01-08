@@ -67,7 +67,7 @@ func (nw *Network) dump(dumpPath string) error {
 	nwPath := path.Join(dumpPath, nw.Name)
 	nwFile, err := os.OpenFile(nwPath, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
-		logrus.Errorf("error：", err)
+		logrus.Errorf("error: %s", err)
 		return err
 	}
 	defer nwFile.Close()
@@ -161,6 +161,10 @@ func CreateNetwork(driver, subnet, name string) error {
 	ipNet.IP = ip
 
 	// 创建网络
+	if driver == "" {
+		logrus.Infof("driver is empty, assume is bridge")
+		driver = "bridge" // TODO: test me
+	}
 	nw, err := drivers[driver].Create(ipNet.String(), name)
 	if err != nil {
 		return err

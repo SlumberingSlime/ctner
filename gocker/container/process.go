@@ -18,7 +18,7 @@ func NewParentProcess(tty bool, volume, containerName, imageName string, envs []
 	readPipe, writePipe, _ := os.Pipe()
 	// 调用自身，传入 init 参数，也就是执行 initCommand
 	//initCommand内容在init.go里面
-	cmd := exec.Command("/proc/self/exe", "init")
+	cmd := exec.Command("/proc/self/exe", "init", containerName)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS |
 			syscall.CLONE_NEWNET | syscall.CLONE_NEWIPC,

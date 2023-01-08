@@ -25,10 +25,25 @@ var ipAllocator = &IPAM{
 // 从文件里加载对象信息
 func (ipam *IPAM) load() error {
 	if _, err := os.Stat(ipam.SubnetAllocatorPath); err != nil {
-		return err
+		if os.IsNotExist(err) {
+			ipamConfigFileDir, _ := path.Split(ipam.SubnetAllocatorPath)
+			if _, err := os.Stat(ipamConfigFileDir); err != nil && os.IsNotExist(err) {
+				if err := os.MkdirAll(ipamConfigFileDir, os.ModePerm); err != nil {
+					return err
+				}
+			}
+		} else {
+			return err
+		}
 	}
 	file, err := os.Open(ipam.SubnetAllocatorPath)
 	if err != nil {
+		if os.IsNotExist(err) {
+			temporaryMap := map[string]string{}
+			ipam.Subnets = &temporaryMap
+			logrus.Infof("IPAM load error: %v, ignore and return empty map.", err)
+			return nil
+		}
 		return err
 	}
 	defer file.Close()
@@ -74,7 +89,7 @@ func (ipam *IPAM) Allocate(subnet *net.IPNet) (ip net.IP, err error) {
 	// 从文件中加载已经分配的网段信息
 	err = ipam.load()
 	if err != nil {
-		logrus.Errorf("dump allocation info, err: %v", err)
+		logrus.Errorf("dump allocation info, err in load(): %v", err)
 		return nil, err
 	}
 
