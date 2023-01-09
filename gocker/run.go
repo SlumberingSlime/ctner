@@ -35,7 +35,7 @@ func Run(cmdArray []string, tty bool, res *subsystem.ResourceConfig, containerNa
 	}
 
 	// 添加资源限制
-	cgroupMananger := cgroups.NewCGroupManager("gocker")
+	cgroupMananger := cgroups.NewCGroupManager("gocker_" + containerName)
 	// 删除资源限制
 	defer cgroupMananger.Destroy()
 	// 设置资源限制

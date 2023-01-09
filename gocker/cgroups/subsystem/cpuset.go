@@ -23,6 +23,10 @@ func (c *CpuSetSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	}
 	if res.CpuSet != "" {
 		c.apply = true
+		err1 := os.WriteFile(path.Join(subsystemCgroupPath, "cpuset.mems"), []byte("0"), 0644)
+		if err1 != nil {
+			logrus.Errorf("failed to write `0` to cpuset.mems, failed to write pid to task is expected, err: %v", err1)
+		}
 		err := os.WriteFile(path.Join(subsystemCgroupPath, "cpuset.cpus"), []byte(res.CpuSet), 0644)
 		if err != nil {
 			logrus.Errorf("failed to write file cpuset.cpus, err: %+v", err)
